@@ -1,5 +1,5 @@
-// Auto-updating Service Worker for SafeSpend Web (with due date)
-const CACHE = 'safespend-web-v20250815231016';
+// Auto-updating Service Worker for SafeSpend Web (due+sort+colors)
+const CACHE = 'safespend-web-v20250815232345';
 const ASSETS = [
   '/', '/index.html', '/app.js', '/manifest.json',
   '/icons/icon-192.png', '/icons/icon-512.png'

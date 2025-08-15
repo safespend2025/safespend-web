@@ -1,4 +1,4 @@
-// SafeSpend Web – auto-update + fecha de pago
+// SafeSpend Web – due colors, sort by due date, improved edit
 const $ = (s)=>document.querySelector(s);
 const fmt = (n)=> n.toLocaleString('en-US',{style:'currency',currency:'USD'});
 const load = ()=> JSON.parse(localStorage.getItem('ss:data')||'{"cards":[],"history":[]}');
@@ -11,6 +11,7 @@ let currentExpenseCardId = null;
 function clampDueDay(d){ d = Number(d||0); if (isNaN(d)) return null; return Math.min(31, Math.max(1, Math.floor(d))); }
 function endOfMonth(year, month){ return new Date(year, month+1, 0).getDate(); }
 function nextDueDate(dueDay){
+  if (!dueDay) return null;
   const today = new Date();
   const y = today.getFullYear(), m = today.getMonth(), day = today.getDate();
   const thisMonthDay = Math.min(clampDueDay(dueDay)||1, endOfMonth(y, m));
@@ -24,6 +25,7 @@ function nextDueDate(dueDay){
   return next;
 }
 function daysUntil(date){
+  if (!date) return Infinity;
   const a = new Date(new Date().toDateString());
   const b = new Date(new Date(date).toDateString());
   return Math.round((b - a)/(1000*60*60*24));
@@ -34,6 +36,16 @@ function computeTotals() {
   const balance = data.cards.reduce((a,c)=>a + Number(c.balance||0), 0);
   const util = credit>0 ? Math.min(100, Math.round((balance/credit)*100)) : 0;
   return {credit, balance, util};
+}
+
+// sort cards by next due date ascending; keep those without due at end
+function sortCards(cards){
+  return [...cards].sort((a,b)=>{
+    const da = nextDueDate(a.dueDay); const db = nextDueDate(b.dueDay);
+    const ua = da ? da.getTime() : Number.MAX_SAFE_INTEGER;
+    const ub = db ? db.getTime() : Number.MAX_SAFE_INTEGER;
+    return ua - ub;
+  });
 }
 
 function render() {
@@ -52,19 +64,23 @@ function render() {
   });
 
   const wrap = $("#cards"); wrap.innerHTML = "";
-  data.cards.forEach(card=>{
+  sortCards(data.cards).forEach(card=>{
     const util = card.limit>0 ? Math.min(100, Math.round((card.balance/card.limit)*100)) : 0;
+    const nd = nextDueDate(card.dueDay);
+    const d = daysUntil(nd);
     let dueHTML = '';
-    let dueSoon = false;
-    if (card.dueDay){
-      const nd = nextDueDate(card.dueDay);
-      const days = daysUntil(nd);
+    let cls = 'card';
+    if (nd){
       const label = nd.toLocaleDateString();
-      dueSoon = days <= 5;
-      dueHTML = `<div class="muted">Vence: ${label} (${days} día${days===1?'':'s'})</div>`;
+      const overdue = d < 0;
+      dueHTML = `<div class="muted">Vence: ${label} (${d} día${Math.abs(d)===1?'':'s'} ${overdue?'atrasado':''})</div>`;
+      if (overdue) cls += ' overdue due-danger';
+      else if (d <= 5) cls += ' due-danger';
+      else if (d <= 15) cls += ' due-warn';
+      else cls += ' due-ok';
     }
     const el = document.createElement('div');
-    el.className = 'card' + (dueSoon ? ' dueSoon' : '');
+    el.className = cls;
     el.innerHTML = `
       <div class="row">
         <div><strong>${card.name}</strong><div class="muted">Límite: ${fmt(card.limit)}</div>${dueHTML}</div>

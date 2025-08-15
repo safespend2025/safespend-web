@@ -10,14 +10,17 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <style>
-    :root { --bg:#fff; --fg:#0b1220; --muted:#667085; --card:#f8f9fb; --line:#e7e7ea; --accent:#0b5cff; }
+    :root { --bg:#fff; --fg:#0b1220; --muted:#667085; --card:#f8f9fb; --line:#e7e7ea; --accent:#0b5cff;
+            --ok:#e9f9ee; --ok-border:#b7f0c3;
+            --warn:#fff7e6; --warn-border:#ffe7b8;
+            --danger:#ffe5e5; --danger-border:#ffd0d0; }
     *{box-sizing:border-box}
     body{font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:var(--bg);color:var(--fg);}
-    header{padding:16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--bg);z-index:9}
+    header{padding:16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--bg);z-index:9;gap:8px;flex-wrap:wrap}
     h1{font-size:18px;margin:0}
-    main{padding:16px;max-width:900px;margin:0 auto;}
+    main{padding:16px;max-width:1000px;margin:0 auto;}
     .row{display:grid;gap:12px}
-    .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));}
+    .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));}
     .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
     .muted{color:var(--muted);font-size:14px}
     button{font-size:15px;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer}
@@ -35,16 +38,23 @@
     .list .row{grid-template-columns:1fr auto}
     .soft{background:#fff}
     .danger{background:#ffe5e5;border-color:#ffd0d0}
-    .dueSoon{border:1px solid #ffe58f;background:#fffbe6}
     .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#0b5cff;color:#fff;padding:10px 14px;border-radius:999px;display:none}
+    /* New urgency colors */
+    .due-ok{background:var(--ok); border:1px solid var(--ok-border);}
+    .due-warn{background:var(--warn); border:1px solid var(--warn-border);}
+    .due-danger{background:var(--danger); border:1px solid var(--danger-border);}
+    .overdue{outline:2px dashed #ff4d4f;}
+    .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .toolbar .muted{font-size:13px}
   </style>
 </head>
 <body>
   <header>
     <h1>SafeSpend Web</h1>
-    <div class="actions">
+    <div class="toolbar">
       <button id="btnInstall" class="soft">Instalar</button>
       <button id="btnAddCard" class="primary">Añadir tarjeta</button>
+      <span class="muted" id="sortHint">Orden: por fecha de pago (más próximas primero)</span>
     </div>
   </header>
   <main>
@@ -78,7 +88,7 @@
       <input id="cardName" placeholder="Nombre (ej. Discover)">
       <input id="cardLimit" placeholder="Límite de crédito" inputmode="decimal">
       <input id="cardDueDay" placeholder="Día de pago (1–31)" inputmode="numeric">
-      <div class="muted">El “día de pago” se repite cada mes.</div>
+      <div class="muted">El “día de pago” se repite cada mes. La lista se ordena automáticamente por fecha próxima.</div>
       <div class="actions">
         <button id="saveCard" class="primary">Guardar</button>
         <button id="cancelCard">Cancelar</button>

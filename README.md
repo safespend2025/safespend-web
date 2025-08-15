@@ -1,10 +1,11 @@
-# SafeSpend Web (Auto-update + Fecha de pago)
-- Añadir tarjeta ahora incluye **Día de pago (1–31)**.
-- Muestra **próxima fecha de pago** y **días restantes**; resalta si faltan ≤ 5 días.
-- Auto-actualización: el Service Worker actualiza y recarga la app al publicar cambios.
-- Los datos siguen en `localStorage` con la clave `ss:data`.
+# SafeSpend Web (Auto-update + Fecha de pago + Colores + Orden)
+- Añadir tarjeta: **Nombre, Límite, Día de pago (1–31)**.
+- Tarjetas **ordenadas** por fecha próxima de pago (las urgentes arriba).
+- **Colores por urgencia**: verde (>15 días), amarillo (6–15), rojo (≤5) y marcado si está **atrasada**.
+- Barra de utilización por tarjeta + totales arriba.
+- Auto-actualización del Service Worker: la app detecta y recarga sola al publicar cambios.
 
 ## Actualizar en Cloudflare Pages
-1) Sube/reemplaza archivos en tu repo de GitHub conectado.
+1) Sube los archivos a tu repo (reemplaza existentes) y haz Commit.
 2) Cloudflare Pages hace deploy.
-3) Abres tu URL y la app se recarga sola mostrando la versión nueva.
+3) Abre tu URL: verás “Actualizando…” y se recarga sola. Los datos permanecen en `localStorage`.
