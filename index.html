@@ -35,6 +35,7 @@
     .list .row{grid-template-columns:1fr auto}
     .soft{background:#fff}
     .danger{background:#ffe5e5;border-color:#ffd0d0}
+    .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#0b5cff;color:#fff;padding:10px 14px;border-radius:999px;display:none}
   </style>
 </head>
 <body>
@@ -67,6 +68,8 @@
     <h2 style="margin:16px 0 8px 0;font-size:16px">Tarjetas</h2>
     <section id="cards" class="grid"></section>
   </main>
+
+  <div class="toast" id="toast">Actualizando…</div>
 
   <dialog id="dlgCard">
     <header><strong id="dlgCardTitle">Añadir tarjeta</strong></header>
