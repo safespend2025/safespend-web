@@ -1,5 +1,5 @@
-// Auto-updating Service Worker for SafeSpend Web
-const CACHE = 'safespend-web-v20250815204434';
+// Auto-updating Service Worker for SafeSpend Web (with due date)
+const CACHE = 'safespend-web-v20250815231016';
 const ASSETS = [
   '/', '/index.html', '/app.js', '/manifest.json',
   '/icons/icon-192.png', '/icons/icon-512.png'
@@ -16,9 +16,7 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('fetch', (event) => {

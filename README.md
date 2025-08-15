@@ -1,9 +1,10 @@
-# SafeSpend Web (Auto-update)
-- Service Worker se actualiza solo en cada deploy (cache-busting).
-- Activa inmediatamente la nueva versión y recarga la app.
-- Datos en localStorage (`ss:data`) se conservan.
+# SafeSpend Web (Auto-update + Fecha de pago)
+- Añadir tarjeta ahora incluye **Día de pago (1–31)**.
+- Muestra **próxima fecha de pago** y **días restantes**; resalta si faltan ≤ 5 días.
+- Auto-actualización: el Service Worker actualiza y recarga la app al publicar cambios.
+- Los datos siguen en `localStorage` con la clave `ss:data`.
 
-## Deploy/Actualizar
-1. Sube/actualiza archivos en tu repo de GitHub.
-2. Cloudflare Pages publica automáticamente.
-3. Al abrir la app, verás "Actualizando…" y luego se recargará sola.
+## Actualizar en Cloudflare Pages
+1) Sube/reemplaza archivos en tu repo de GitHub conectado.
+2) Cloudflare Pages hace deploy.
+3) Abres tu URL y la app se recarga sola mostrando la versión nueva.

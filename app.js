@@ -1,4 +1,4 @@
-// SafeSpend Web – auto-update aware
+// SafeSpend Web – auto-update + fecha de pago
 const $ = (s)=>document.querySelector(s);
 const fmt = (n)=> n.toLocaleString('en-US',{style:'currency',currency:'USD'});
 const load = ()=> JSON.parse(localStorage.getItem('ss:data')||'{"cards":[],"history":[]}');
@@ -7,6 +7,27 @@ const save = (d)=> localStorage.setItem('ss:data', JSON.stringify(d));
 let data = load();
 let editingCardId = null;
 let currentExpenseCardId = null;
+
+function clampDueDay(d){ d = Number(d||0); if (isNaN(d)) return null; return Math.min(31, Math.max(1, Math.floor(d))); }
+function endOfMonth(year, month){ return new Date(year, month+1, 0).getDate(); }
+function nextDueDate(dueDay){
+  const today = new Date();
+  const y = today.getFullYear(), m = today.getMonth(), day = today.getDate();
+  const thisMonthDay = Math.min(clampDueDay(dueDay)||1, endOfMonth(y, m));
+  let next = new Date(y, m, thisMonthDay);
+  if (day > thisMonthDay) {
+    const ny = m===11 ? y+1 : y;
+    const nm = (m+1)%12;
+    const nmDay = Math.min(clampDueDay(dueDay)||1, endOfMonth(ny, nm));
+    next = new Date(ny, nm, nmDay);
+  }
+  return next;
+}
+function daysUntil(date){
+  const a = new Date(new Date().toDateString());
+  const b = new Date(new Date(date).toDateString());
+  return Math.round((b - a)/(1000*60*60*24));
+}
 
 function computeTotals() {
   const credit = data.cards.reduce((a,c)=>a + Number(c.limit||0), 0);
@@ -33,11 +54,20 @@ function render() {
   const wrap = $("#cards"); wrap.innerHTML = "";
   data.cards.forEach(card=>{
     const util = card.limit>0 ? Math.min(100, Math.round((card.balance/card.limit)*100)) : 0;
+    let dueHTML = '';
+    let dueSoon = false;
+    if (card.dueDay){
+      const nd = nextDueDate(card.dueDay);
+      const days = daysUntil(nd);
+      const label = nd.toLocaleDateString();
+      dueSoon = days <= 5;
+      dueHTML = `<div class="muted">Vence: ${label} (${days} día${days===1?'':'s'})</div>`;
+    }
     const el = document.createElement('div');
-    el.className = 'card';
+    el.className = 'card' + (dueSoon ? ' dueSoon' : '');
     el.innerHTML = `
       <div class="row">
-        <div><strong>${card.name}</strong><div class="muted">Límite: ${fmt(card.limit)}</div></div>
+        <div><strong>${card.name}</strong><div class="muted">Límite: ${fmt(card.limit)}</div>${dueHTML}</div>
         <div class="right"><span class="badge">${util}%</span></div>
       </div>
       <div class="progress" style="margin:10px 0"><div style="width:${util}%"></div></div>
@@ -58,16 +88,18 @@ function render() {
   checkThresholds();
 }
 
-function addCard(name, limit){
+// CRUD
+function addCard(name, limit, dueDay){
   const id = crypto.randomUUID();
-  data.cards.push({id, name, limit:Number(limit||0), balance:0});
+  data.cards.push({id, name, limit:Number(limit||0), balance:0, dueDay: clampDueDay(dueDay)});
   save(data); render();
 }
-function updateCard(id, name, limit){
+function updateCard(id, name, limit, dueDay){
   const c = data.cards.find(c=>c.id===id);
   if(!c) return;
   c.name = name;
   c.limit = Number(limit||0);
+  c.dueDay = clampDueDay(dueDay);
   if (c.balance > c.limit) c.balance = c.limit;
   save(data); render();
 }
@@ -108,11 +140,12 @@ function checkThresholds(){
   });
 }
 
-// UI events
+// UI
 $("#btnAddCard").addEventListener('click', ()=>{
   $("#dlgCardTitle").textContent = "Añadir tarjeta";
   $("#cardName").value = "";
   $("#cardLimit").value = "";
+  $("#cardDueDay").value = "";
   window.editingCardId = null;
   $("#dlgCard").showModal();
 });
@@ -120,9 +153,10 @@ $("#cancelCard").addEventListener('click', ()=> $("#dlgCard").close());
 $("#saveCard").addEventListener('click', ()=>{
   const name = $("#cardName").value.trim();
   const limit = $("#cardLimit").value.trim();
+  const dueDay = $("#cardDueDay").value.trim();
   if(!name || !limit) return alert("Completa nombre y límite");
-  if (window.editingCardId) updateCard(window.editingCardId, name, limit);
-  else addCard(name, limit);
+  if (window.editingCardId) updateCard(window.editingCardId, name, limit, dueDay);
+  else addCard(name, limit, dueDay);
   $("#dlgCard").close();
 });
 
@@ -135,6 +169,7 @@ $("#cards").addEventListener('click', (e)=>{
     $("#dlgCardTitle").textContent = "Editar tarjeta";
     $("#cardName").value = c.name;
     $("#cardLimit").value = c.limit;
+    $("#cardDueDay").value = c.dueDay || "";
     $("#dlgCard").showModal();
   } else if (act==='delete'){
     if(confirm("¿Eliminar tarjeta?")) deleteCard(id);
@@ -157,13 +192,6 @@ $("#saveExpense").addEventListener('click', ()=>{
   $("#dlgExpense").close();
 });
 
-$("#btnClearHistory").addEventListener('click', ()=>{
-  if (confirm("¿Borrar todo el historial?")){
-    data.history = [];
-    save(data); render();
-  }
-});
-
 // Install prompt
 let deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', (e)=>{
@@ -172,11 +200,6 @@ window.addEventListener('beforeinstallprompt', (e)=>{
 $("#btnInstall").addEventListener('click', async()=>{
   if (deferredPrompt){ deferredPrompt.prompt(); deferredPrompt=null; }
 });
-
-// Notifications permission (optional)
-if ('Notification' in window && Notification.permission==='default'){
-  setTimeout(()=> Notification.requestPermission().catch(()=>{}), 1500);
-}
 
 // Service Worker registration with auto-reload on update
 const toast = $("#toast");
