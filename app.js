@@ -5,6 +5,31 @@ const load = ()=> JSON.parse(localStorage.getItem('ss:data')||'{"cards":[],"hist
 const save = (d)=> localStorage.setItem('ss:data', JSON.stringify(d));
 
 let data = load();
+
+// THEME: Dark mode toggle with persistence
+const THEME_KEY = 'ss:theme';
+function applyTheme(t){
+  const root = document.documentElement;
+  if (t === 'dark') root.classList.add('dark'); else root.classList.remove('dark');
+}
+function initTheme(){
+  let t = localStorage.getItem(THEME_KEY);
+  if (!t){
+    // default to system preference
+    t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  applyTheme(t);
+  localStorage.setItem(THEME_KEY, t);
+}
+function toggleTheme(){
+  const current = localStorage.getItem(THEME_KEY) || 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme(next);
+}
+document.getElementById('btnTheme')?.addEventListener('click', toggleTheme);
+initTheme();
+
 let editingCardId = null;
 let currentExpenseCardId = null;
 

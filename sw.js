@@ -1,5 +1,5 @@
 // Auto-updating Service Worker for SafeSpend Web (due+sort+colors)
-const CACHE = 'safespend-web-v20250815232345';
+const CACHE = 'safespend-web-vdark-20250815232345';
 const ASSETS = [
   '/', '/index.html', '/app.js', '/manifest.json',
   '/icons/icon-192.png', '/icons/icon-512.png'

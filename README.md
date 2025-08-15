@@ -9,3 +9,8 @@
 1) Sube los archivos a tu repo (reemplaza existentes) y haz Commit.
 2) Cloudflare Pages hace deploy.
 3) Abre tu URL: verás “Actualizando…” y se recarga sola. Los datos permanecen en `localStorage`.
+
+
+## Modo oscuro (opcional)
+- Botón **🌓 Tema** en la barra superior.
+- Se guarda tu preferencia (oscuro/claro) y por defecto sigue el tema del sistema.

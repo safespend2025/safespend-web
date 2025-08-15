@@ -46,12 +46,25 @@
     .overdue{outline:2px dashed #ff4d4f;}
     .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     .toolbar .muted{font-size:13px}
-  </style>
+  
+    /* Dark mode support */
+    :root.dark {
+      --bg:#0b0f17; --fg:#eef1f6; --muted:#9aa4b2; --card:#131a26; --line:#1e2633; --accent:#3b82f6;
+      --ok:#0f2a1a; --ok-border:#1d5a33;
+      --warn:#3a2b10; --warn-border:#6b4b12;
+      --danger:#3a1414; --danger-border:#6b1f1f;
+    }
+    .toggle {
+      display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; border:1px solid var(--line);
+      background:var(--card); color:var(--fg); cursor:pointer; font-size:14px;
+    }
+    </style>
 </head>
 <body>
   <header>
     <h1>SafeSpend Web</h1>
     <div class="toolbar">
+      <button id="btnTheme" class="toggle" title="Cambiar tema">🌓 Tema</button>
       <button id="btnInstall" class="soft">Instalar</button>
       <button id="btnAddCard" class="primary">Añadir tarjeta</button>
       <span class="muted" id="sortHint">Orden: por fecha de pago (más próximas primero)</span>
